@@ -15,34 +15,45 @@ class LoadingButton @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
     private var widthSize = 0
     private var heightSize = 0
+    private var progressWidth = 0
+    private var angle = 0
 
-    private val valueAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-        addUpdateListener {
-//            width = it.animatedValue as Float
-            invalidate()
-        }
-        repeatMode = ValueAnimator.REVERSE
-        repeatCount = ValueAnimator.INFINITE
-        duration = 5000
-        start()
-    }
+    private var rectangleAnimator = ValueAnimator()
+    private var circleAnimator = ValueAnimator()
 
     var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
 
         when(new){
-            ButtonState.Clicked -> {
-
-            }
             ButtonState.Loading -> {
-
+                rectangleAnimator = ValueAnimator.ofInt(0, widthSize).apply {
+                    duration = 2000
+                    addUpdateListener { valueAnimator ->
+                        progressWidth = animatedValue as Int
+                        valueAnimator.repeatCount = ValueAnimator.INFINITE
+                        valueAnimator.repeatMode = ValueAnimator.REVERSE
+                        invalidate()
+                    }
+                    start()
+                }
+                circleAnimator = ValueAnimator.ofInt(0, 360).apply {
+                    duration  = 2000
+                    addUpdateListener { valueAnimator ->
+                        angle = valueAnimator.animatedValue as Int
+                        valueAnimator.repeatCount = ValueAnimator.INFINITE
+                        invalidate()
+                    }
+                    start()
+                }
             }
             ButtonState.Completed -> {
-
+                rectangleAnimator.end()
+                progressWidth = 0
+                circleAnimator.end()
+                angle = 0
+                invalidate()
             }
         }
-//        invalidate()
     }
-
 
     init {
         isClickable = true
@@ -52,11 +63,22 @@ class LoadingButton @JvmOverloads constructor(
     private val paint = Paint()
     override fun onDraw(canvas: Canvas) {
 
+        // draw fixed rectangle
+
         paint.color = getColor(context, R.color.colorPrimary)
         canvas.drawRect(
                 0f,
                 0f,
                 widthSize.toFloat(),
+                heightSize.toFloat(), paint)
+
+        //draw dynamic rectangle
+
+        paint.color = getColor(context, R.color.colorPrimaryDark)
+        canvas.drawRect(
+                0f,
+                0f,
+                widthSize.toFloat() * progressWidth /100,
                 heightSize.toFloat(), paint)
 
         paint.color = Color.WHITE
@@ -73,6 +95,10 @@ class LoadingButton @JvmOverloads constructor(
                 buttonLabel,
                 (widthSize /2).toFloat(),
                 (heightSize/2).toFloat(), paint)
+
+        paint.color=Color.YELLOW
+        canvas.drawArc((widthSize - 100f),(heightSize / 2) - 50f, (widthSize-50f),
+                (heightSize / 2) + 50f, 0F,angle.toFloat(), true,paint)
 
     }
 

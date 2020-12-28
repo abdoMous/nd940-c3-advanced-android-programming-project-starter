@@ -47,21 +47,13 @@ class MainActivity : AppCompatActivity() {
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
-//        custom_button.setOnClickListener {
-//
-//        }
-
-        custom_button.setOnTouchListener { _, event ->
-            if(event.action == MotionEvent.ACTION_UP) {
-                when(radio_group.checkedRadioButtonId){
-                    R.id.glide_radio_button -> download(URL_GLIDE)
-                    R.id.project_radio_button -> download(URL_PROJECT)
-                    R.id.retrofit_radio_button -> download(URL_RETROFIT)
-                    else -> Toast.makeText(this, "Please select the file to download", Toast.LENGTH_SHORT).show()
-                }
-                custom_button.buttonState = ButtonState.Loading
+        custom_button.setOnClickListener {
+            when(radio_group.checkedRadioButtonId){
+                R.id.glide_radio_button -> download(URL_GLIDE)
+                R.id.project_radio_button -> download(URL_PROJECT)
+                R.id.retrofit_radio_button -> download(URL_RETROFIT)
+                else -> Toast.makeText(this, "Please select the file to download", Toast.LENGTH_SHORT).show()
             }
-            false
         }
 
         createChannel(
@@ -77,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             if(downloadID == id) {
                 Toast.makeText(context, "Download Completed", Toast.LENGTH_SHORT).show()
             }
-            var finishDownload = false
             var progress: Int
 
             val contentIntent = Intent(applicationContext, DetailActivity::class.java)
@@ -93,13 +84,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            while (!finishDownload){
-                val cursor: Cursor = downloadManager.query(DownloadManager.Query().setFilterById(downloadID))
-                if(cursor.moveToFirst()){
+            val cursor: Cursor = downloadManager.query(DownloadManager.Query().setFilterById(downloadID))
+            while (cursor.moveToNext()){
                     val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                     when (status) {
                         DownloadManager.STATUS_FAILED -> {
-                            finishDownload = true
+                            custom_button.buttonState = ButtonState.Completed
                             contentIntent.putExtra(STATUS_EXTRA,"Failed")
                             pendingIntent = PendingIntent.getActivity(
                                     applicationContext,
@@ -109,23 +99,9 @@ class MainActivity : AppCompatActivity() {
                             )
                             notificationManager.sendNotification(getString(R.string.notification_description), applicationContext,pendingIntent)
                         }
-                        DownloadManager.STATUS_PAUSED -> {
-                        }
-                        DownloadManager.STATUS_PENDING -> {
-                        }
-                        DownloadManager.STATUS_RUNNING -> {
-                            val total = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                            if (total >= 0) {
-                                val downloaded = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                                progress = (downloaded * 100L / total).toInt()
 
-
-                            }
-                        }
                         DownloadManager.STATUS_SUCCESSFUL -> {
-                            progress = 100
 
-                            finishDownload = true
                             custom_button.buttonState = ButtonState.Completed
 
                             contentIntent.putExtra(STATUS_EXTRA,"Success")
@@ -138,12 +114,12 @@ class MainActivity : AppCompatActivity() {
                             notificationManager.sendNotification(getString(R.string.notification_description), applicationContext,pendingIntent)
                         }
                     }
-                }
             }
         }
     }
 
     private fun download(url: String) {
+
         val request =
             DownloadManager.Request(Uri.parse(url))
                 .setTitle(getString(R.string.app_name))
@@ -153,6 +129,7 @@ class MainActivity : AppCompatActivity() {
                 .setAllowedOverRoaming(true)
 
         downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        custom_button.buttonState = ButtonState.Loading
         downloadID =
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
 
