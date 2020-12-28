@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -46,14 +47,21 @@ class MainActivity : AppCompatActivity() {
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
-        custom_button.setOnClickListener {
-            when(radio_group.checkedRadioButtonId){
-                R.id.glide_radio_button -> download(URL_GLIDE)
-                R.id.project_radio_button -> download(URL_PROJECT)
-                R.id.retrofit_radio_button -> download(URL_RETROFIT)
-                else -> Toast.makeText(this, "Please select the file to download", Toast.LENGTH_SHORT).show()
+//        custom_button.setOnClickListener {
+//
+//        }
+
+        custom_button.setOnTouchListener { _, event ->
+            if(event.action == MotionEvent.ACTION_UP) {
+                when(radio_group.checkedRadioButtonId){
+                    R.id.glide_radio_button -> download(URL_GLIDE)
+                    R.id.project_radio_button -> download(URL_PROJECT)
+                    R.id.retrofit_radio_button -> download(URL_RETROFIT)
+                    else -> Toast.makeText(this, "Please select the file to download", Toast.LENGTH_SHORT).show()
+                }
+                custom_button.buttonState = ButtonState.Loading
             }
-            custom_button.buttonState = ButtonState.Loading
+            false
         }
 
         createChannel(
