@@ -6,8 +6,17 @@
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
-        motion:duration="1000">
+        motion:duration="2000"
+        motion:autoTransition="animateToEnd">
        <KeyFrameSet>
+           <KeyAttribute
+               motion:framePosition="0"
+               motion:motionTarget="@id/status_textView"
+               android:alpha="0.0" />
+           <KeyAttribute
+               motion:framePosition="100"
+               motion:motionTarget="@id/status_textView"
+               android:alpha="1.0" />
        </KeyFrameSet>
     </Transition>
 
