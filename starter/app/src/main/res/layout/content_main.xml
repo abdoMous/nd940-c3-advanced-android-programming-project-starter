@@ -9,6 +9,8 @@
     tools:showIn="@layout/activity_main">
 
     <com.udacity.LoadingButton
+        app:buttonBackgroundColor="@color/colorPrimary"
+        app:textColor="@color/white"
         android:id="@+id/custom_button"
         android:layout_width="0dp"
         android:layout_height="60dp"

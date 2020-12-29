@@ -27,6 +27,7 @@ fun NotificationManager.sendNotification(
         .setContentText(messageBody)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
+        .addAction(R.drawable.ic_assistant_black_24dp, "Check the status", pendingIntent)
 
     notify(NOTIFICATION_ID, builder.build())
 }

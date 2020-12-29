@@ -18,6 +18,9 @@ class LoadingButton @JvmOverloads constructor(
     private var progressWidth = 0
     private var angle = 0
 
+    private var buttonBackgroundColor = 0
+    private var textColor = 0
+
     private var rectangleAnimator = ValueAnimator()
     private var circleAnimator = ValueAnimator()
 
@@ -57,6 +60,17 @@ class LoadingButton @JvmOverloads constructor(
 
     init {
         isClickable = true
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.LoadingButton,
+            0, 0).apply {
+                try {
+                    buttonBackgroundColor = getColor(R.styleable.LoadingButton_buttonBackgroundColor, context.getColor(R.color.colorPrimary))
+                    textColor = getColor(R.styleable.LoadingButton_textColor, Color.WHITE)
+                } finally {
+                    recycle()
+                }
+        }
     }
 
 
@@ -65,7 +79,7 @@ class LoadingButton @JvmOverloads constructor(
 
         // draw fixed rectangle
 
-        paint.color = getColor(context, R.color.colorPrimary)
+        paint.color = buttonBackgroundColor
         canvas.drawRect(
                 0f,
                 0f,
@@ -81,7 +95,7 @@ class LoadingButton @JvmOverloads constructor(
                 widthSize.toFloat() * progressWidth /100,
                 heightSize.toFloat(), paint)
 
-        paint.color = Color.WHITE
+        paint.color = textColor
         paint.textSize = 60f
         paint.textAlign = Paint.Align.CENTER
 
